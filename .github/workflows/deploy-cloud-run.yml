@@ -12,11 +12,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud (service account JSON)
+      - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          # Provide a base64-encoded service account JSON in the repo secret `GCP_SA_KEY`.
-          # Example: `echo -n "$SA_JSON" | base64` -> paste into the secret.
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Cloud SDK
