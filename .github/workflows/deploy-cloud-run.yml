@@ -36,10 +36,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated
 
-# Notes:
-# - This workflow is a template. To use it, add the following repository secrets:
-#   - GCP_PROJECT: Google Cloud project id
-#   - GCP_REGION: Cloud Run region (e.g., us-central1)
-#   - GCP_SERVICE_ACCOUNT: service account email or workload identity mapping used above
-#   - GCP_WORKLOAD_IDENTITY_PROVIDER: workload identity provider resource (optional depending on auth method)
-# - Alternatively, replace the auth step with `service_account_key` using a base64 JSON key stored in secrets.
+# Required secrets:
+# - GCP_SA_KEY: (raw service account JSON, not base64)
+# - GCP_PROJECT: (your GCP project id)
+# - GCP_REGION: (your Cloud Run region, e.g., us-central1)
