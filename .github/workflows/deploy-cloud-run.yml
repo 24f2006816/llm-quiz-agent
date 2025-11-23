@@ -1,0 +1,46 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-deploy:
+    name: Build and deploy to Cloud Run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+      - name: Build container and push to Artifact Registry / GCR
+        run: |
+          IMAGE=gcr.io/${{ secrets.GCP_PROJECT }}/llm-quiz-agent:$GITHUB_SHA
+          gcloud builds submit --tag "$IMAGE"
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE=gcr.io/${{ secrets.GCP_PROJECT }}/llm-quiz-agent:$GITHUB_SHA
+          gcloud run deploy llm-quiz-agent \
+            --image "$IMAGE" \
+            --region ${{ secrets.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated
+
+# Notes:
+# - This workflow is a template. To use it, add the following repository secrets:
+#   - GCP_PROJECT: Google Cloud project id
+#   - GCP_REGION: Cloud Run region (e.g., us-central1)
+#   - GCP_SERVICE_ACCOUNT: service account email or workload identity mapping used above
+#   - GCP_WORKLOAD_IDENTITY_PROVIDER: workload identity provider resource (optional depending on auth method)
+# - Alternatively, replace the auth step with `service_account_key` using a base64 JSON key stored in secrets.
